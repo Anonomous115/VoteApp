@@ -1,143 +1,99 @@
-import React, { useState } from "react";
+import React, { useState } from "react"
+import PropTypes from "prop-types"
 import {
-  Navbar,
-  Nav,
-  Form,
-  Button,
-  FormControl,
-  Modal,
-  InputGroup,
-} from "react-bootstrap";
-import { db } from "../firebase";
-function Header({ data, subData }) {
-  const [text, settext] = useState("");
-  const [modalShow, setModalShow] = useState(false);
-  const [polls, setPolls] = useState([1]);
-  const [show, setShow] = useState(false);
-  const [text1, settext1] = useState("");
-  const [text2, settext2] = useState("");
-  const [text3, settext3] = useState("");
-  const [text4, settext4] = useState("");
-  const [text5, settext5] = useState("");
+  Fab,
+  Zoom,
+  AppBar,
+  Toolbar,
+  Typography,
+  makeStyles,
+  CssBaseline,
+  useScrollTrigger,
+  Button
+} from "@material-ui/core"
+import { KeyboardArrowUp } from "@material-ui/icons"
+import AddPollDialog from "./AddPollDialog"
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-  const handleChange = (w, e) => {
-    if (polls.length === 1) {
-      settext1(e.target.value);
-    }
-    if (polls.length === 2) {
-      settext2(e.target.value);
-    }
-    if (polls.length === 3) {
-      settext3(e.target.value);
-    }
-    if (polls.length === 4) {
-      settext4(e.target.value);
-    }
-    if (polls.length === 5) {
-      settext5(e.target.value);
-    }
-  };
-  const addpoll = () => {
-    let last;
-    if (polls.length < 5) {
-      for (var i = 0; i < polls.length; i++) {
-        last = polls[i];
-      }
-      setPolls([...polls, last + 1]);
-    }
-  };
+const useStyles = makeStyles((theme) => ({
+  root: {
+    position: "fixed",
+    bottom: theme.spacing(2),
+    right: theme.spacing(2)
+  },
+  title: {
+    flexGrow: 1,
+  },
+}))
 
-  const submit = () => {
-    db.collection("polls").add({ name: text });
-    if (text1) {
-      db.collection("voteMe")
-        .doc("poll")
-        .collection("vote")
-        .add({ name: text1, votes: 0 });
-    }
-    if (text2) {
-      db.collection("voteMe")
-        .doc("poll")
-        .collection("vote")
-        .add({ name: text2, votes: 0 });
-    }
-    if (text3) {
-      db.collection("voteMe")
-        .doc("poll")
-        .collection("vote")
-        .add({ name: text3, votes: 0 });
-    }
-    if (text4) {
-      db.collection("voteMe").collection("vote").add({ name: text4, votes: 0 });
-    }
+function ScrollTop(props) {
+  const { children, window } = props
+  const classes = useStyles()
+  // Note that you normally won't need to set the window ref as useScrollTrigger
+  // will default to window.
+  // This is only being set here because the demo is in an iframe.
+  const trigger = useScrollTrigger({
+    target: window ? window() : undefined,
+    disableHysteresis: true,
+    threshold: 100
+  })
 
-    console.log(text);
-  };
+  const handleClick = (event) => {
+    const anchor = (event.target.ownerDocument || document).querySelector(
+      "#back-to-top-anchor"
+    )
+
+    if (anchor) {
+      anchor.scrollIntoView({ behavior: "smooth", block: "center" })
+    }
+  }
+
   return (
-    <div>
-      <Navbar bg="primary" variant="dark">
-        <Navbar.Brand href="#home">Voting app</Navbar.Brand>
-        <Nav className="mr-auto"></Nav>
-        <Form inline>
-          <FormControl type="text" placeholder="Search" className="mr-sm-2" />
-
-          <Button variant="primary" onClick={handleShow}>
-            Add a poll
-          </Button>
-
-          <Modal show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
-              <Modal.Title id="contained-modal-title-vcenter">
-                Create a Poll
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <InputGroup className="mb-3">
-                <InputGroup.Prepend>
-                  <InputGroup.Text id="inputGroup-sizing-default">
-                    Title
-                  </InputGroup.Text>
-                </InputGroup.Prepend>
-                <FormControl
-                  aria-label="Default"
-                  aria-describedby="inputGroup-sizing-default"
-                  onChange={(e) => settext(e.target.value)}
-                />
-              </InputGroup>
-              <h3>Total Polls: {polls.length}</h3>
-              {polls.map((w, i) => (
-                <InputGroup className="mb-3">
-                  <InputGroup.Prepend>
-                    <InputGroup.Text id="inputGroup-sizing-default">
-                      Poll {w}
-                    </InputGroup.Text>
-                  </InputGroup.Prepend>
-                  <FormControl
-                    aria-label="Default"
-                    aria-describedby="inputGroup-sizing-default"
-                    onChange={(e) => handleChange(w, e)}
-                  />
-                </InputGroup>
-              ))}
-              <Button variant="primary" onClick={addpoll}>
-                Add another poll
-              </Button>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={handleClose}>
-                Close
-              </Button>
-              <Button variant="success" onClick={submit}>
-                Save Changes
-              </Button>
-            </Modal.Footer>
-          </Modal>
-        </Form>
-      </Navbar>
-    </div>
-  );
+    <Zoom in={trigger}>
+      <div onClick={handleClick} role="presentation" className={classes.root}>
+        {children}
+      </div>
+    </Zoom>
+  )
 }
 
-export default Header;
+ScrollTop.propTypes = {
+  children: PropTypes.element.isRequired,
+  /**
+   * Injected by the documentation to work in an iframe.
+   * You won't need it on your project.
+   */
+  window: PropTypes.func
+}
+
+export default function Header(props) {
+  const classes = useStyles()
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+  return (
+    <React.Fragment>
+      <CssBaseline />
+      <AppBar>
+        <Toolbar>
+          <Typography edge="start" variant="h6" className={classes.title}>
+            Simple Polls
+          </Typography>
+          <Button edge="end" color="inherit" onClick={handleClickOpen}>Add Poll</Button>
+        </Toolbar>
+      </AppBar>
+      <Toolbar id="back-to-top-anchor" />
+      <ScrollTop {...props}>
+        <Fab color="secondary" size="small" aria-label="scroll back to top">
+          <KeyboardArrowUp />
+        </Fab>
+      </ScrollTop>
+      <AddPollDialog open={open} handleClose={handleClose} />
+    </React.Fragment>
+  )
+}
