@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react"
 import {
   Button,
-  Paper,
   Box,
   Container,
   makeStyles,
@@ -44,13 +43,12 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export default function SinglePoll(props) {
-  const [poll, setPoll] = useState()
+  const [poll, setPoll] = useState();
+  const [voted, setVoted] = useState(window.localStorage.getItem('voted'));
   const classes = useStyles()
   const params = useParams()
-
   useEffect(() => {
     let unsubscribe
-
     if (params.id) {
       unsubscribe = db
         .collection("polls")
@@ -76,12 +74,16 @@ export default function SinglePoll(props) {
   }, [])
 
   function castVote(index) {
-    const { candiates } = poll
-
-    let candiatesCopy = candiates.slice()
-    candiatesCopy[index].score += 1
-
-    db.collection("polls").doc(params.id).update({candiates: candiatesCopy})
+    if(!voted){
+      const { candiates } = poll
+      let candiatesCopy = candiates.slice()
+      candiatesCopy[index].score += 1 
+      db.collection("polls").doc(params.id).update({candiates: candiatesCopy})
+      window.localStorage.setItem('voted', true)
+      setVoted(true)
+    } else {
+      alert('You have Already casted your vote for this poll')
+    }
   }
 
   return (

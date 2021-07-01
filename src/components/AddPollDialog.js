@@ -6,9 +6,6 @@ import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
 import DialogTitle from "@material-ui/core/DialogTitle"
-import IconButton from "@material-ui/core/IconButton"
-import RemoveIcon from "@material-ui/icons/Remove"
-import InputAdornment from "@material-ui/core/InputAdornment"
 import { db } from "../firebase"
 
 export default function AddPollDialog({ open, handleClose }) {
